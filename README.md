@@ -129,3 +129,85 @@ Rod 4: 100 mm (cuts: [50, 20, 15])
 |##########################################........|
 
 ```
+
+
+## Storage‑Aware Workflow
+Reusing leftovers across multiple cutting jobs
+One of the defining features of this project is its storage‑aware cutting strategy.
+
+Unlike traditional rod‑cutting optimizers that treat each job independently, this engine:
+- tracks exact rods used,
+- reports leftover lengths,
+- exposes offcuts as reusable inventory,
+- and allows you to feed those leftovers directly into the next optimization run.
+
+This creates a continuous, real‑world workflow where material is reused across multiple production cycles, minimizing waste and reducing cost.
+
+### Multi‑Job Optimization Loop
+Every time you run the optimizer, the terminal output includes:
+
+- a list of used rods,
+- a list of offcuts,
+- the total waste,
+- and a cut plan.
+
+Example output:
+
+```bash
+Used rods:
+  Rod 100 mm used (leftover 10 mm)
+  Rod 100 mm used (leftover 40 mm)
+  Rod 100 mm used (leftover 55 mm)
+  Rod 100 mm used (leftover 90 mm)
+
+Offcuts: [10, 40, 55, 90]
+Total waste: 195 mm
+```
+
+These offcuts represent your new stock for the next job.
+
+### Step 1 — Convert leftovers into rod definitions
+Take the Offcuts: list:
+
+```bash
+[10, 40, 55, 90]
+```
+Convert it into the rod format used by the CLI:
+
+```bash
+10x1,40x1,55x1,90x1
+```
+This becomes your new --rods argument.
+
+### Step 2 — Run the next job using leftover stock
+If your next job requires cuts:
+
+```bash
+20, 15, 10
+```
+Run:
+
+```bash
+cargo run -- --rods "90x1,55x1,40x1,10x1" --cuts "20,15,10"
+```
+The engine will:
+- reuse your leftover rods first,
+- avoid cutting fresh stock unless necessary,
+- and minimize waste across jobs, not just within a single job.
+
+### Why this matters
+Most cutting optimizers assume:
+- infinite stock,
+- no leftovers,
+- or that each job is independent.
+
+This project models a real workshop, where:
+- leftovers accumulate,
+- storage matters,
+- and material cost is significant.
+
+The storage‑aware workflow helps you:
+- reduce waste across multiple jobs,
+- track inventory automatically,
+- plan production more efficiently,
+- and save money on material.
