@@ -1,6 +1,6 @@
 [package]
 name = "cutting_optimizer"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["Marcin Bielak <marcin.bieli+cuttingoptimizergithub@gmail.com>"]
 description = "Rod cutting optimizer with DP-based cut ordering and storage-aware cutting strategy."
