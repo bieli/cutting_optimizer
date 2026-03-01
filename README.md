@@ -195,6 +195,24 @@ The engine will:
 - avoid cutting fresh stock unless necessary,
 - and minimize waste across jobs, not just within a single job.
 
+### Optional: Automating the loop
+You can automate leftover extraction with a simple shell script:
+
+```bash
+cargo run -- --rods "$STOCK" --cuts "$CUTS" > result.txt
+
+STOCK=$(grep "Offcuts:" result.txt \
+    | sed 's/Offcuts: 
+
+\[//; s/\]
+
+//' \
+    | tr ',' 'x1,' \
+    | sed 's/$/x1/')
+```
+
+Now $STOCK contains the leftover rods for the next iteration.
+
 ### Why this matters
 Most cutting optimizers assume:
 - infinite stock,
