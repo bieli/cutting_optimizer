@@ -73,3 +73,59 @@ This makes the engine suitable for:
 - automated saws
 - CNC routers
 
+
+## How it works
+### Phase 1 — Heuristic planning
+Fast greedy strategy (Shortest‑First by default) attempts to pack cuts into rods.
+
+### Phase 2 — Backtracking
+If phase 1 fails or leaves excessive waste, the engine switches to an exact solver:
+
+- tries all valid combinations
+- guarantees optimal packing when possible
+- returns a full cut plan
+
+## Example usage
+
+### How to run
+```bash
+$ cargo run -- --rods "100x2,40x2,10x3" --cuts "50, 40, 30, 20, 10, 15" --dp-length 100 --visualize
+```
+### Example Output
+
+```bash
+=== CUTTING REPORT ===
+Optimal cut order: [50, 40, 30, 20, 15, 10]
+Used rods:
+  Rod 10 mm used (leftover 0 mm)
+  Rod 40 mm used (leftover 0 mm)
+  Rod 40 mm used (leftover 10 mm)
+  Rod 100 mm used (leftover 15 mm)
+Offcuts: [10, 15]
+Total waste: 25 mm
+
+=== ASCII VISUALIZATION ===
+
+Cuts in order:
+Cut  1:   50 mm |#########################
+Cut  2:   40 mm |####################
+Cut  3:   30 mm |###############
+Cut  4:   20 mm |##########
+Cut  5:   15 mm |#######
+Cut  6:   10 mm |#####
+
+=== RODS USED ===
+
+Rod 1: 10 mm (cuts: [10])
+|#####|
+
+Rod 2: 40 mm (cuts: [40])
+|####################|
+
+Rod 3: 40 mm (cuts: [30])
+|###############.....|
+
+Rod 4: 100 mm (cuts: [50, 20, 15])
+|##########################################........|
+
+```
