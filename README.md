@@ -199,16 +199,32 @@ The engine will:
 You can automate leftover extraction with a simple shell script:
 
 ```bash
+#!/bin/bash
+
+# Run optimizer
 cargo run -- --rods "$STOCK" --cuts "$CUTS" > result.txt
 
-STOCK=$(grep "Offcuts:" result.txt \
-    | sed 's/Offcuts: 
+# Extract offcuts
+OFFCUTS=$(grep "Offcuts:" result.txt | sed -E 's/.*
 
-\[//; s/\]
+\[(.*)\]
 
-//' \
-    | tr ',' 'x1,' \
-    | sed 's/$/x1/')
+.*/\1/')
+
+# If no offcuts → keep stock empty
+if [ -z "$OFFCUTS" ]; then
+    STOCK=""
+    exit 0
+fi
+
+# Convert "10, 40, 55, 90" → "10x1,40x1,55x1,90x1"
+STOCK=$(echo "$OFFCUTS" | tr -d ' ' | awk -F',' '{
+    for (i=1; i<=NF; i++) {
+        printf "%sx1", $i;
+        if (i < NF) printf ",";
+    }
+}')
+
 ```
 
 Now $STOCK contains the leftover rods for the next iteration.
