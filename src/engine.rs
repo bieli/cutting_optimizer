@@ -169,16 +169,18 @@ pub fn print_report(result: &CutResult) {
     println!("Total waste: {} mm", result.total_waste);
 }
 
-pub fn ascii_visualize(order: &[i32], rods: &[i32], plan: &[Vec<i32>]) {
-    println!("\n=== ASCII VISUALIZATION ===");
+pub fn ascii_render(order: &[i32], rods: &[i32], plan: &[Vec<i32>]) -> String {
+    let mut out = String::new();
 
-    println!("\nCuts in order:");
+    out.push_str("=== ASCII VISUALIZATION ===\n\n");
+    out.push_str("Cuts in order:\n");
+
     for (i, cut) in order.iter().enumerate() {
         let bar = "#".repeat((*cut / 2).max(1) as usize);
-        println!("Cut {:>2}: {:>4} mm |{}", i + 1, cut, bar);
+        out.push_str(&format!("Cut {:>2}: {:>4} mm |{}\n", i + 1, cut, bar));
     }
 
-    println!("\n=== RODS USED ===");
+    out.push_str("\n=== RODS USED ===\n");
 
     let mut used_index = 1;
 
@@ -187,10 +189,10 @@ pub fn ascii_visualize(order: &[i32], rods: &[i32], plan: &[Vec<i32>]) {
             continue;
         }
 
-        println!(
-            "\nRod {}: {} mm (cuts: {:?})",
+        out.push_str(&format!(
+            "\nRod {}: {} mm (cuts: {:?})\n",
             used_index, rod_len, plan[rod_idx]
-        );
+        ));
         used_index += 1;
 
         let scale = 2;
@@ -199,11 +201,9 @@ pub fn ascii_visualize(order: &[i32], rods: &[i32], plan: &[Vec<i32>]) {
         let used_sum: i32 = plan[rod_idx].iter().sum();
         let leftover = rod_len - used_sum;
 
-        let mut bar = if leftover == 0 {
-            // pręt zużyty w 100% → sam '#'
+        let bar = if leftover == 0 {
             vec!['#'; total_chars]
         } else {
-            // klasyczny przypadek: '#' dla cięć, '.' dla pozostałości
             let mut b = vec!['.'; total_chars];
             let mut pos = 0;
             for cut in &plan[rod_idx] {
@@ -218,9 +218,12 @@ pub fn ascii_visualize(order: &[i32], rods: &[i32], plan: &[Vec<i32>]) {
             b
         };
 
-        let bar_str: String = bar.drain(..).collect();
-        println!("|{}|", bar_str);
+        out.push_str(&format!("|{}|\n", bar.iter().collect::<String>()));
     }
 
-    println!();
+    out
+}
+
+pub fn ascii_visualize(order: &[i32], rods: &[i32], plan: &[Vec<i32>]) {
+    print!("{}", ascii_render(order, rods, plan));
 }
